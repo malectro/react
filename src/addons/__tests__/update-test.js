@@ -136,6 +136,41 @@ describe('update', function() {
     });
   });
 
+  describe('shouldFreeze', function() {
+    it('should not freeze by default', function() {
+      var obj = update({}, {v: {$set: 2}});
+      expect(function() {
+        obj.v = 3;
+        obj.u = 2;
+      }).not.toThrow();
+      expect(obj).toEqual({v: 3, u: 2});
+    });
+    it('should freeze when flag is true', function() {
+      var obj = update({}, {v: {$set: 2}}, true);
+      expect(function() {
+        obj.v = 3;
+      }).toThrow('Cannot assign to read only property \'v\' of #<Object>');
+      expect(function() {
+        obj.u = 2;
+      }).toThrow('Can\'t add property u, object is not extensible');
+      expect(obj).toEqual({v: 2});
+    });
+    it('should freeze deeply', function() {
+      var obj = update({v: {w: 1}}, {v: {w: {$set: 2}}}, true);
+      expect(function() {
+        obj.v.w = 3;
+      }).toThrow('Cannot assign to read only property \'w\' of #<Object>');
+      expect(obj).toEqual({v: {w: 2}});
+    });
+    it('should not freeze $set values', function() {
+      var obj = update({v: {w: 1}}, {v: {$set: {w: 2}}}, true);
+      expect(function() {
+        obj.v.w = 3;
+      }).not.toThrow('Cannot assign to read only property \'w\' of #<Object>');
+      expect(obj).toEqual({v: {w: 3}});
+    });
+  });
+
   it('should support deep updates', function() {
     expect(update({
       a: 'b',

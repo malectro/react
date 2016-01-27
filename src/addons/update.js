@@ -17,6 +17,7 @@ var assign = require('Object.assign');
 var keyOf = require('keyOf');
 var invariant = require('invariant');
 var hasOwnProperty = {}.hasOwnProperty;
+var freeze = Object.freeze;
 
 function shallowCopy(x) {
   if (Array.isArray(x)) {
@@ -67,7 +68,7 @@ function invariantArrayCase(value, spec, command) {
   );
 }
 
-function update(value, spec) {
+function update(value, spec, shouldFreeze) {
   invariant(
     typeof spec === 'object',
     'update(): You provided a key path to update() that did not contain one ' +
@@ -157,8 +158,12 @@ function update(value, spec) {
 
   for (var k in spec) {
     if (!(ALL_COMMANDS_SET.hasOwnProperty(k) && ALL_COMMANDS_SET[k])) {
-      nextValue[k] = update(value[k], spec[k]);
+      nextValue[k] = update(value[k], spec[k], shouldFreeze);
     }
+  }
+
+  if (shouldFreeze && freeze) {
+    nextValue = freeze(nextValue);
   }
 
   return nextValue;

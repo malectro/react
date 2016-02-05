@@ -31,6 +31,7 @@ function shallowCopy(x) {
 var COMMAND_PUSH = keyOf({$push: null});
 var COMMAND_UNSHIFT = keyOf({$unshift: null});
 var COMMAND_SPLICE = keyOf({$splice: null});
+var COMMAND_MAP = keyOf({$map: null});
 var COMMAND_SET = keyOf({$set: null});
 var COMMAND_MERGE = keyOf({$merge: null});
 var COMMAND_APPLY = keyOf({$apply: null});
@@ -39,6 +40,7 @@ var ALL_COMMANDS_LIST = [
   COMMAND_PUSH,
   COMMAND_UNSHIFT,
   COMMAND_SPLICE,
+  COMMAND_MAP,
   COMMAND_SET,
   COMMAND_MERGE,
   COMMAND_APPLY,
@@ -143,6 +145,22 @@ function update(value, spec) {
       );
       nextValue.splice.apply(nextValue, args);
     });
+  }
+
+  if (hasOwnProperty.call(spec, COMMAND_MAP)) {
+    invariant(
+      Array.isArray(value),
+      'Expected %s target to be an array; got %s',
+      COMMAND_MAP,
+      value
+    );
+    invariant(
+      typeof spec[COMMAND_MAP] === 'function',
+      'update(): expected spec of %s to be a function; got %s.',
+      COMMAND_MAP,
+      spec[COMMAND_MAP]
+    );
+    nextValue = value.map(spec[COMMAND_MAP]);
   }
 
   if (hasOwnProperty.call(spec, COMMAND_APPLY)) {

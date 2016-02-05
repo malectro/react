@@ -85,6 +85,27 @@ describe('update', function() {
     });
   });
 
+  describe('$map', function() {
+    it('maps', function() {
+      expect(update([1, 3, 4], {$map: (x) => x + 1})).toEqual([2, 4, 5]);
+    });
+    it('does not mutate the original object', function() {
+      var obj = [1, 3, 4];
+      update(obj, {$map: (x) => x + 1});
+      expect(obj).toEqual([1, 3, 4]);
+    });
+    it('only maps a function', function() {
+      expect(update.bind(null, [], {$map: 1})).toThrow(
+        'update(): expected spec of $map to be a function; got 1.'
+      );
+    });
+    it('only maps unto an array', function() {
+      expect(update.bind(null, 1, {$map: 7})).toThrow(
+        'Expected $map target to be an array; got 1'
+      );
+    });
+  });
+
   describe('$merge', function() {
     it('merges', function() {
       expect(update({a: 'b'}, {$merge: {c: 'd'}})).toEqual({a: 'b', c: 'd'});
@@ -172,7 +193,7 @@ describe('update', function() {
   it('should require a command', function() {
     expect(update.bind(null, {a: 'b'}, {a: 'c'})).toThrow(
       'update(): You provided a key path to update() that did not contain ' +
-      'one of $push, $unshift, $splice, $set, $merge, $apply. Did you ' +
+      'one of $push, $unshift, $splice, $map, $set, $merge, $apply. Did you ' +
       'forget to include {$set: ...}?'
     );
   });

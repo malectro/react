@@ -86,17 +86,20 @@ describe('update', function() {
   });
 
   describe('$map', function() {
-    it('maps', function() {
+    it('maps with a function', function() {
       expect(update([1, 3, 4], {$map: (x) => x + 1})).toEqual([2, 4, 5]);
+    });
+    it('maps with an object spec', function() {
+      expect(update([1, 3, 4], {$map: {$set: 2}})).toEqual([2, 2, 2]);
     });
     it('does not mutate the original object', function() {
       var obj = [1, 3, 4];
       update(obj, {$map: (x) => x + 1});
       expect(obj).toEqual([1, 3, 4]);
     });
-    it('only maps a function', function() {
+    it('only maps a function or object', function() {
       expect(update.bind(null, [], {$map: 1})).toThrow(
-        'update(): expected spec of $map to be a function; got 1.'
+        'update(): expected spec of $map to be a function or object; got 1.'
       );
     });
     it('only maps unto an array', function() {

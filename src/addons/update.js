@@ -155,12 +155,18 @@ function update(value, spec) {
       value
     );
     invariant(
-      typeof spec[COMMAND_MAP] === 'function',
-      'update(): expected spec of %s to be a function; got %s.',
+      typeof spec[COMMAND_MAP] === 'function' || typeof spec[COMMAND_MAP] === 'object',
+      'update(): expected spec of %s to be a function or object; got %s.',
       COMMAND_MAP,
       spec[COMMAND_MAP]
     );
-    nextValue = value.map(spec[COMMAND_MAP]);
+    if (typeof spec[COMMAND_MAP] === 'function') {
+      nextValue = value.map(spec[COMMAND_MAP]);
+    } else {
+      nextValue = value.map(function(currentValue) {
+        return update(currentValue, spec[COMMAND_MAP]);
+      });
+    }
   }
 
   if (hasOwnProperty.call(spec, COMMAND_APPLY)) {
